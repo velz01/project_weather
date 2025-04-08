@@ -1,27 +1,34 @@
 package ru.velz.project_weather.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.velz.project_weather.dao.RegistrationDao;
+import ru.velz.project_weather.dao.UserDao;
+import ru.velz.project_weather.exception.UserAlreadyExistsException;
+import ru.velz.project_weather.exception.UserNotFoundException;
+import ru.velz.project_weather.model.Session;
 import ru.velz.project_weather.model.User;
+import ru.velz.project_weather.service.RegistrationService;
+import ru.velz.project_weather.service.SessionService;
 
 @Controller
+@AllArgsConstructor
 public class AuthController {
 
-    private final RegistrationDao registrationDao;
+    public static final String SESSION_COOKIE_NAME = "SESSION_ID";
+    public static final int ONE_HOUR = 60 * 60;
+    private final RegistrationService registrationService;
 
-    @Autowired
-    public AuthController(RegistrationDao registrationDao) {
-        this.registrationDao = registrationDao;
-    }
+    private final SessionService sessionService;
 
     @GetMapping("/registration")
     public String showRegistrationPage(Model model) {
@@ -30,19 +37,60 @@ public class AuthController {
         return "sign-up";
     }
 
+
     @PostMapping("/registration")
     public String registerUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
-                               @RequestParam("repeatPassword") String repeatedPassword) {
+                               @RequestParam("repeatPassword") String repeatedPassword, Model model) {
+
         if (!user.getPassword().equals(repeatedPassword)) {
-           bindingResult.addError(new ObjectError("password","Password should be not different"));
+            bindingResult.addError(new FieldError("user", "password", "Password should be not different"));
         }
-        System.out.println(user);
+
         if (bindingResult.hasErrors()) {
+            model.addAttribute(user);
             return "sign-up";
         }
 
-        registrationDao.createUser(user);
+        try {
+            registrationService.registerUser(user);
+        } catch (UserAlreadyExistsException exception) {
+            bindingResult.addError(new FieldError("user", "login", exception.getMessage()));
+            return "sign-up";
+        }
 
-        return "redirect:/index";
+        return "redirect:/";
+    }
+
+    @GetMapping("/login")
+    public String showLoginPage(Model model) {
+        model.addAttribute("user", new User());
+
+        return "sign-in";
+    }
+
+    @PostMapping("/login")
+    public String loginUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, Model model, HttpServletResponse response) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute(user);
+            return "sign-in";
+        }
+
+        try {
+            User registeredUser = registrationService.findRegisteredUser(user);
+            Session session = sessionService.createSession(registeredUser);
+            setCookie(response, session);
+            return "redirect:/";
+        } catch (UserNotFoundException exception) {
+            bindingResult.addError(new FieldError("user", "login", exception.getMessage()));
+            return "sign-in";
+        }
+
+    }
+
+    private static void setCookie(HttpServletResponse response, Session session) {
+        Cookie cookie = new Cookie(SESSION_COOKIE_NAME, session.getId().toString());
+        cookie.setMaxAge(ONE_HOUR);
+        response.addCookie(cookie);
     }
 }

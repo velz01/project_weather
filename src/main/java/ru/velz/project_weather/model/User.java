@@ -21,11 +21,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 4, max = 16, message = "Length from 4 to 16")
+    @Size(min = 4, max = 16, message = "Length from 4 to 16 letters")
 
     private String login;
 
-    @Size(min = 4, max = 16, message = "Length from 4 to 16")
+    @Size(min = 4, message = "Length from 4 letters")
     private String password;
 
     @Transient
