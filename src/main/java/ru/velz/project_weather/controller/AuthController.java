@@ -8,17 +8,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import ru.velz.project_weather.dao.UserDao;
+import org.springframework.web.bind.annotation.*;
 import ru.velz.project_weather.exception.UserAlreadyExistsException;
 import ru.velz.project_weather.exception.UserNotFoundException;
 import ru.velz.project_weather.model.Session;
 import ru.velz.project_weather.model.User;
 import ru.velz.project_weather.service.RegistrationService;
 import ru.velz.project_weather.service.SessionService;
+
+import java.util.UUID;
 
 @Controller
 @AllArgsConstructor
@@ -41,6 +39,8 @@ public class AuthController {
     @PostMapping("/registration")
     public String registerUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
                                @RequestParam("repeatPassword") String repeatedPassword, Model model) {
+
+        System.out.println(user);
 
         if (!user.getPassword().equals(repeatedPassword)) {
             bindingResult.addError(new FieldError("user", "password", "Password should be not different"));
@@ -92,5 +92,14 @@ public class AuthController {
         Cookie cookie = new Cookie(SESSION_COOKIE_NAME, session.getId().toString());
         cookie.setMaxAge(ONE_HOUR);
         response.addCookie(cookie);
+    }
+
+    @DeleteMapping("/logout")
+    public String logoutUser(@CookieValue(SESSION_COOKIE_NAME) Cookie cookie) {
+        UUID sessionId = UUID.fromString(cookie.getValue());
+        cookie.setValue(null);
+        sessionService.deleteBySessionId(sessionId);
+
+        return "redirect:/login";
     }
 }

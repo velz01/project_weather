@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.velz.project_weather.model.Session;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,5 +30,24 @@ public class SessionDao {
         Query<Session> query = currentSession.createQuery("FROM Session WHERE id = :uuid", Session.class);
         query.setParameter("uuid", uuid);
         return query.uniqueResultOptional();
+    }
+
+    @Transactional
+    public void deleteBySessionId(UUID sessionId) {
+        org.hibernate.Session currentSession = sessionFactory.getCurrentSession();
+        currentSession.createMutationQuery("DELETE FROM Session WHERE id = :sessionId").setParameter("sessionId", sessionId).executeUpdate();
+    }
+
+    @Transactional
+    public void deleteExpiredSessions() {
+        org.hibernate.Session currentSession = sessionFactory.getCurrentSession();
+        LocalDateTime now = LocalDateTime.now();
+        currentSession.createMutationQuery("DELETE FROM Session WHERE expiresAt < :dateNow").setParameter("dateNow", now).executeUpdate();
+    }
+
+    @Transactional
+    public void update(Session session) {
+        org.hibernate.Session currentSession = sessionFactory.getCurrentSession();
+        currentSession.merge(session);
     }
 }

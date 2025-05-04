@@ -1,7 +1,9 @@
 package ru.velz.project_weather.config;
 
+import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
@@ -31,5 +33,13 @@ public class SpringMVCDispatcherServletInitializer extends AbstractAnnotationCon
         context.addFilter("hiddenHttpMethodFilter",
                         new HiddenHttpMethodFilter())
                 .addMappingForUrlPatterns(null, true, "/*");
+    }
+
+    @Override
+    protected Filter[] getServletFilters() {
+        CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
+        encodingFilter.setEncoding("UTF-8");
+        encodingFilter.setForceEncoding(true);
+        return new Filter[]{ encodingFilter };
     }
 }

@@ -1,15 +1,14 @@
 package ru.velz.project_weather.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -19,12 +18,16 @@ import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 
 import javax.sql.DataSource;
+import java.net.http.HttpClient;
 import java.util.Properties;
 
 @Configuration
 @EnableWebMvc
+@EnableScheduling
 @ComponentScan(basePackages = "ru.velz.project_weather")
-@PropertySource("classpath:hibernate.properties")
+
+@PropertySources({@PropertySource("classpath:prod_hibernate.properties"),
+                  @PropertySource("classpath:open_weather.properties")})
 @EnableTransactionManagement
 public class SpringConfig {
     private final Environment environment;
@@ -62,6 +65,7 @@ public class SpringConfig {
 
         return dataSource;
     }
+
     @Bean
     public SpringLiquibase liquibase(DataSource dataSource) {
         SpringLiquibase liquibase = new SpringLiquibase();
@@ -111,5 +115,15 @@ public class SpringConfig {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
+    public HttpClient httpClient() {
+        return HttpClient.newHttpClient();
     }
 }

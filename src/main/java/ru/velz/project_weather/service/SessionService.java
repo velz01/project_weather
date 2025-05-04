@@ -1,17 +1,14 @@
 package ru.velz.project_weather.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.velz.project_weather.dao.SessionDao;
-import ru.velz.project_weather.dao.UserDao;
 import ru.velz.project_weather.exception.SessionIsExpiredException;
 import ru.velz.project_weather.model.Session;
 import ru.velz.project_weather.model.User;
-import ru.velz.project_weather.session.SessionNotFoundException;
+import ru.velz.project_weather.exception.SessionNotFoundException;
 
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalField;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,7 +38,6 @@ public class SessionService {
     }
 
     public Session findSessionById(UUID id) {
-
         Optional<Session> sessionOpt = sessionDao.findSessionById(id);
 
         if (sessionOpt.isPresent()) {
@@ -51,7 +47,7 @@ public class SessionService {
             }
             return session;
         }
-        throw new SessionNotFoundException("Session isn't found"); //ToDO: разработать scheduler для автоматической подчистки сессий
+        throw new SessionNotFoundException("Session isn't found");
     }
 
     private static boolean sessionIsExpired(Session session) {
@@ -59,4 +55,11 @@ public class SessionService {
     }
 
 
+    public void deleteBySessionId(UUID sessionId) {
+        sessionDao.deleteBySessionId(sessionId);
+    }
+
+    public void updateSession(Session session) {
+        sessionDao.update(session);
+    }
 }

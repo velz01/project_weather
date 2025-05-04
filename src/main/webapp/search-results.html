@@ -15,8 +15,12 @@
             Weather Tracker
         </a>
         <div class="d-flex align-items-center">
-            <span class="navbar-text me-3">zhukovsd</span>
-            <button class="btn btn-outline-danger">Sign out</button>
+            <span th:text="${user.getLogin()}" class="navbar-text me-3"></span>
+            <form th:method="DELETE" th:action="@{/logout}" class="mt-4">
+                <button type="submit" class="btn btn-outline-danger">Sign out</button>
+            </form>
+            <!--            <input type="hidden" name="redirect_to" value="http://localhost/"/>-->
+
         </div>
     </div>
 </nav>
@@ -24,93 +28,53 @@
 <section id="page-content">
     <div class="container mt-4">
         <div class="d-flex my-4">
-            <div class="input-group location-search-input-group me-3">
-                <input class="form-control" type="text" name="name" placeholder="Enter location" value="San Francisco"
-                       required>
-                <button class="btn btn-outline-secondary btn-sm clear-input-button" type="button"
-                        onclick="this.previousElementSibling.value=''">
-                    &times;
-                </button>
-            </div>
-            <button class="btn btn-outline-success">Search</button>
+            <form th:method="POST" th:action="@{/locations}" >
+                <div class="input-group location-search-input-group me-3">
+
+                    <input class="form-control" type="text" name="name" placeholder="Enter location" required>
+                    <button class="btn btn-outline-secondary btn-sm clear-input-button" type="button"
+                            onclick="this.previousElementSibling.value=''">
+                        &times;
+                    </button>
+
+                </div>
+                <button  type="submit" class="btn btn-outline-success">Search</button>
+            </form>
         </div>
 
         <div>
             <h2>Locations:</h2>
             <div class="row">
-                <div class="col-12 col-lg-3 col-md-6 mb-4">
+
+
+                <div th:each="location : ${locationDtoList}" class="col-12 col-lg-3 col-md-6 mb-4">
+                    <form th:method="POST" th:action="@{/location}" >
                     <div class="card h-100">
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">San Francisco</h5>
-                            <p class="card-text mb-1">Latitude: 37.7790262</p>
-                            <p class="card-text mb-1">Longitude: -122.419906</p>
-                            <p class="card-text mb-1">Country: US</p>
-                            <p class="card-text mb-3">State: California</p>
+                            <h5  th:text="${location.getName()}" class="card-title"></h5>
+                            <p th:text="'Latitude: ' + ${location.getLatitude()}" class="card-text mb-1"></p>
+                            <p th:text="'Longitude: ' + ${location.getLongitude()}" class="card-text mb-1"></p>
+                            <p th:text="'Country: ' + ${location.getCountry()}" class="card-text mb-1"></p>
+
+<!--                            <input type="hidden" th:field="*{name}" />-->
+<!--                            <input type="hidden" th:field="*{coord.getLatitude()}" />-->
+<!--                            <input type="hidden" th:field="*{coord.getLongitude()}" />-->
+<!--                            <input type="hidden" th:field="*{sys.getCountry()}" />-->
+                            <input type="hidden" name="name"           th:value="${location.name}" />
+                            <input type="hidden" name="coord.latitude"  th:value="${location.coord.latitude}" />
+                            <input type="hidden" name="coord.longitude" th:value="${location.coord.longitude}" />
+                            <input type="hidden" name="sys.country"     th:value="${location.sys.country}" />
                             <div class="mt-auto">
-                                <button class="btn btn-primary w-100">Add</button>
+                                <button type="submit" class="btn btn-primary w-100">Add</button>
                             </div>
                         </div>
                     </div>
+                    </form>
                 </div>
-                <div class="col-12 col-lg-3 col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">San Francisco</h5>
-                            <p class="card-text mb-1">Latitude: 8.5050281</p>
-                            <p class="card-text mb-1">Longitude: 125.9771179</p>
-                            <p class="card-text mb-1">Country: PH</p>
-                            <p class="card-text mb-3">State: Agusan del Sur</p>
-                            <div class="mt-auto">
-                                <button class="btn btn-primary w-100">Add</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-lg-3 col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">San Francisco</h5>
-                            <p class="card-text mb-1">Latitude: -31.4249815</p>
-                            <p class="card-text mb-1">Longitude: -62.0840299</p>
-                            <p class="card-text mb-1">Country: AR</p>
-                            <p class="card-text mb-3">State: Córdoba</p>
-                            <div class="mt-auto">
-                                <button class="btn btn-primary w-100">Add</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-lg-3 col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">San Francisco</h5>
-                            <p class="card-text mb-1">Latitude: 8.2467485</p>
-                            <p class="card-text mb-1">Longitude: -80.9721357</p>
-                            <p class="card-text mb-1">Country: PA</p>
-                            <p class="card-text mb-3">State: Veraguas</p>
-                            <div class="mt-auto">
-                                <button class="btn btn-primary w-100">Add</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-lg-3 col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">San Francisco</h5>
-                            <p class="card-text mb-1">Latitude: 5.26902235</p>
-                            <p class="card-text mb-1">Longitude: -72.77388372073908</p>
-                            <p class="card-text mb-1">Country: CO</p>
-                            <p class="card-text mb-3">State: Casanare</p>
-                            <div class="mt-auto">
-                                <button class="btn btn-primary w-100">Add</button>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
-    </div>
 </section>
 
 <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 mt-4 border-top">
