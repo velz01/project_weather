@@ -8,6 +8,12 @@ import ru.velz.project_weather.model.User;
 @Component
 public class LocationMapper {
     public Location mapToLocation(LocationDto locationDto, User user) {
-        return Location.builder().name(locationDto.getName()).latitude(locationDto.getLatitude()).longitude(locationDto.getLongitude()).user(user).build();
+        return Location
+                .builder()
+                .name(locationDto.getName())
+                .latitude(locationDto.getLatitude())
+                .longitude(locationDto.getLongitude())
+                .user(user)
+                .build();
     }
 }

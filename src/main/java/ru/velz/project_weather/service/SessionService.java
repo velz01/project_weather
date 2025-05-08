@@ -1,6 +1,7 @@
 package ru.velz.project_weather.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.velz.project_weather.dao.SessionDao;
 import ru.velz.project_weather.exception.SessionIsExpiredException;
@@ -14,9 +15,9 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class SessionService {
     public static final int ONE_HOUR = 1;
-
 
     private final SessionDao sessionDao;
 
@@ -42,11 +43,13 @@ public class SessionService {
 
         if (sessionOpt.isPresent()) {
             Session session = sessionOpt.get();
-            if (sessionIsExpired(session) ) {
+            if (sessionIsExpired(session)) {
+                log.info("User's session is expired");
                 throw new SessionIsExpiredException("Session is expired");
             }
             return session;
         }
+        log.warn("Session is not found");
         throw new SessionNotFoundException("Session isn't found");
     }
 

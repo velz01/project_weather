@@ -10,9 +10,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import ru.velz.project_weather.config.SpringConfig;
+import ru.velz.project_weather.dto.LoginUserDto;
+import ru.velz.project_weather.dto.RegistrationUserDto;
 import ru.velz.project_weather.exception.UserAlreadyExistsException;
 import ru.velz.project_weather.model.User;
-import ru.velz.project_weather.service.RegistrationService;
+import ru.velz.project_weather.service.AuthenticationService;
 
 @ExtendWith(SpringExtension.class)
 //@ContextConfiguration(classes = {TestConfig.class, SpringConfig.class})
@@ -22,46 +24,51 @@ import ru.velz.project_weather.service.RegistrationService;
 @WebAppConfiguration
 public class AuthTest {
 
-    private final RegistrationService registrationService;
+    private final AuthenticationService authenticationService;
 
-    private User userToRegister;
+    private RegistrationUserDto registrationUserDto;
 
     @Autowired
-    public AuthTest(RegistrationService registrationService) {
-        this.registrationService = registrationService;
+    public AuthTest(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
     @BeforeEach
     public void setUp() {
-        this.userToRegister = buildUser();
+        this.registrationUserDto = buildUser();
     }
 
-    private static User buildUser() {
-        return User
+    private static RegistrationUserDto buildUser() {
+        return RegistrationUserDto
                 .builder()
                 .login("legenda")
                 .password("leon")
                 .build();
     }
-
+    private static LoginUserDto buildLoginDto(RegistrationUserDto regDto) {
+        return LoginUserDto.builder()
+                .login(regDto.getLogin())
+                .password(regDto.getPassword())
+                .build();
+    }
     @Test
     public void registrationCreatesUser() {
-        User userWithPlainPassword = buildUser();
+        RegistrationUserDto userWithPlainPassword = buildUser();
 
-        registrationService.registerUser(userToRegister);
-        User registeredUser = registrationService.findRegisteredUser(userWithPlainPassword);
+        authenticationService.registerUser(registrationUserDto);
+        User registeredUser = authenticationService.findRegisteredUser(buildLoginDto(userWithPlainPassword));
 
         Assertions.assertNotNull(registeredUser);
-        Assertions.assertEquals(registeredUser.getLogin(), userToRegister.getLogin());
+        Assertions.assertEquals(registeredUser.getLogin(), registrationUserDto.getLogin());
     }
 
     @Test
     public void registrationWithDuplicateLoginThrowsException() {
-        User duplicateUser = buildUser();
+        RegistrationUserDto duplicateUser = buildUser();
 
-        registrationService.registerUser(userToRegister);
+        authenticationService.registerUser(registrationUserDto);
 
-        Assertions.assertThrows(UserAlreadyExistsException.class, () -> registrationService.registerUser(duplicateUser));
+        Assertions.assertThrows(UserAlreadyExistsException.class, () -> authenticationService.registerUser(duplicateUser));
 
     }
 

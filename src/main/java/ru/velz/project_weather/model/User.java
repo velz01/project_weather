@@ -23,19 +23,9 @@ public class User {
     private Long id;
 
     @Size(min = 4, max = 16, message = "Length from 4 to 16 letters")
-
     private String login;
 
     @Size(min = 4, message = "Length from 4 letters")
     private String password;
-
-    @Transient
-    @OneToMany(mappedBy = "user")
-    private List<Location> locations;
-
-    @Transient
-    @OneToMany(mappedBy = "user")
-    private List<Session> sessions;
-
 
 }

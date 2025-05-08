@@ -16,12 +16,6 @@
       <artifactId>mockito-core</artifactId>
       <version>5.13.0</version>
       <scope>test</scope>
-<!--      <exclusions>-->
-<!--        <exclusion>-->
-<!--          <groupId>net.bytebuddy</groupId>-->
-<!--          <artifactId>byte-buddy-agent</artifactId>-->
-<!--        </exclusion>-->
-<!--      </exclusions>-->
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -29,19 +23,6 @@
       <version>5.13.0</version>
       <scope>test</scope>
     </dependency>
-
-<!--    <dependency>-->
-<!--      <groupId>net.bytebuddy</groupId>-->
-<!--      <artifactId>byte-buddy</artifactId>-->
-<!--      <version>1.17.5</version>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>net.bytebuddy</groupId>-->
-<!--      <artifactId>byte-buddy-agent</artifactId>-->
-<!--      <version>1.17.5</version>-->
-<!--      <scope>test</scope>-->
-<!--    </dependency>-->
 
     <dependency>
       <groupId>org.springframework</groupId>

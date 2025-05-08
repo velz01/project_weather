@@ -28,8 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -84,6 +83,6 @@ public class ApiTest {
                 httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofString()))
         ).thenReturn(response);
 
-        org.junit.jupiter.api.Assertions.assertThrows(LocationNotFoundException.class, () -> openWeatherApiService.obtainLocationsDtoByName("London"));
+        assertThrows(LocationNotFoundException.class, () -> openWeatherApiService.obtainLocationsDtoByName("London"));
     }
 }

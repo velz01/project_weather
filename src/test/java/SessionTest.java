@@ -9,10 +9,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import ru.velz.project_weather.config.SpringConfig;
+import ru.velz.project_weather.dto.RegistrationUserDto;
 import ru.velz.project_weather.exception.SessionIsExpiredException;
 import ru.velz.project_weather.model.Session;
 import ru.velz.project_weather.model.User;
-import ru.velz.project_weather.service.RegistrationService;
+import ru.velz.project_weather.service.AuthenticationService;
 import ru.velz.project_weather.service.SessionService;
 
 import java.time.LocalDateTime;
@@ -28,16 +29,16 @@ public class SessionTest {
 
     public static final int ONE_HOUR = 1;
     private final SessionService sessionService;
-    private final RegistrationService registrationService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public SessionTest(SessionService sessionService, RegistrationService registrationService) {
+    public SessionTest(SessionService sessionService, AuthenticationService authenticationService) {
         this.sessionService = sessionService;
-        this.registrationService = registrationService;
+        this.authenticationService = authenticationService;
     }
 
-    private static User buildUser() {
-        return User
+    private static RegistrationUserDto buildRegistrationUserDto() {
+        return RegistrationUserDto
                 .builder()
                 .login("legenda")
                 .password("leon")
@@ -46,8 +47,8 @@ public class SessionTest {
 
     @Test
     public void sessionExpiresAfterOneHour() {
-        User user = buildUser();
-        registrationService.registerUser(user);
+        RegistrationUserDto registrationUserDto = buildRegistrationUserDto();
+        User user = authenticationService.registerUser(registrationUserDto);
 
         Session session = sessionService.createSession(user);
         Assertions.assertDoesNotThrow(() -> sessionService.findSessionById(session.getId()));

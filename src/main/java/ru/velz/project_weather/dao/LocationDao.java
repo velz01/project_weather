@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.velz.project_weather.model.Location;
 
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Component
@@ -31,10 +32,17 @@ public class LocationDao {
     }
 
     @Transactional
-    public void delete(Long locationId) {
+    public void delete(Location location) {
         Session currentSession = sessionFactory.getCurrentSession();
-        currentSession.createMutationQuery("DELETE FROM Location WHERE id = :id")
-                .setParameter("id", locationId)
-                .executeUpdate();
+        currentSession.remove(location);
+    }
+
+    @Transactional
+    public Optional<Location> findLocationByUserIdAndByLocationId(Long locationId, Long userId) {
+        Session currentSession = sessionFactory.getCurrentSession();
+        return currentSession.createQuery("FROM Location WHERE user.id = :userId AND id = :locationId", Location.class)
+                .setParameter("userId", userId)
+                .setParameter("locationId", locationId)
+                .uniqueResultOptional();
     }
 }

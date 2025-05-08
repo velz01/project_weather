@@ -2,6 +2,7 @@ package ru.velz.project_weather.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,11 +24,8 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-
+@Slf4j
 public class OpenWeatherApiService {
-    public static final String API_KEY = "207159a018d0b8a0f4e26b6f886e4ac7";
-    public static final String URL_FOR_SEARCH_BY_LOCATIONS = "https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&units=metric&appid=" + API_KEY;
-    public static final String URL_FOR_SEARCH_BY_NAME = "https://api.openweathermap.org/data/2.5/find?q=%s&units=metric&appid=" + API_KEY;
 
     private Environment environment;
     private ObjectMapper objectMapper;
@@ -48,6 +46,7 @@ public class OpenWeatherApiService {
             return objectMapper.readValue(listLocations,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, LocationDto.class));
         } catch (IOException | InterruptedException e) {
+            log.error("Something wrong with api request");
             throw new ApiRequestIsNotCorrectException(e.getMessage());
         }
 
@@ -69,6 +68,7 @@ public class OpenWeatherApiService {
         ArrayList<WeatherDto> listWeatherDto = new ArrayList<>();
         String apiKey = environment.getRequiredProperty("openweather.api.key");
         String uri = environment.getRequiredProperty("openweather.api.weather.url");
+
         for (Location location : locations) {
             HttpRequest request = buildHttpRequest(getUrlForSearchByLocations(uri, location, apiKey));
             try {
@@ -77,10 +77,9 @@ public class OpenWeatherApiService {
                 weatherDto.setLocationId(location.getId());
                 listWeatherDto.add(weatherDto);
             } catch (IOException | InterruptedException e) {
+                log.error("Something wrong with api request");
                 throw new ApiRequestIsNotCorrectException(e.getMessage());
             }
-
-
         }
 
         return listWeatherDto;
@@ -91,6 +90,7 @@ public class OpenWeatherApiService {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 404) {
+            log.error("Location is not found");
             throw new LocationNotFoundException("Location not found.");
         }
 
